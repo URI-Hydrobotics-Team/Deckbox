@@ -45,7 +45,7 @@ int main(int argc, char **argv){
 
     	form = fl_bgn_form(FL_UP_BOX, 800, 600);
 	//fl_add_box(FL_UP_BOX, 1, 1, 140, 20, "CONTROLS");
-	fl_add_labelframe(FL_EMBOSSED_FRAME, 2, 20, 140, 500, "buttons 'n shit");
+	fl_add_labelframe(FL_EMBOSSED_FRAME, 2, 20, 140, 500, "Control");
 	//fl_add_box(FL_FRAME_BOX, 1, 30, 140, 500, ""); //border box around buttons
 	fl_add_box (FL_OVAL_BOX, 600, 500, 150, 60, "deckBox X11");
     	reset = fl_add_button(FL_NORMAL_BUTTON, 20, 40, 100, 50, "reset");
@@ -59,7 +59,7 @@ int main(int argc, char **argv){
 
 
 	//mode ui
-	fl_add_labelframe(FL_EMBOSSED_FRAME, 200, 20, 200, 150, "mode");
+	fl_add_labelframe(FL_EMBOSSED_FRAME, 200, 20, 200, 150, "Mode");
 	radio1 = fl_add_button(FL_RADIO_BUTTON, 220, 40, 100, 20, "radio 1");
 	radio2 = fl_add_button(FL_RADIO_BUTTON, 220, 80, 100, 20, "radio 2");
 

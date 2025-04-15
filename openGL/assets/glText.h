@@ -1,4 +1,5 @@
-//glText ALPHA 1
+/*glTEXT alpha header version*/
+
 
 //TODO
 /*	
@@ -9,75 +10,28 @@
 
 
 #include <stdlib.h>
-#include <string.h>
-#include <GL/glut.h>
-#include <math.h>
 #include <stdio.h>
-#include <time.h>
+#include <GL/glut.h>
+#include <string.h>
 
-#include "font/zero.ppm"
+#include "font/num.ppm"
+#include "font/char.ppm"
 #include "font/alpha.ppm"
-//map and system
 
-int mapScale = 64;
-//debugging
-int verbose = 1; //debug mode (displays variables in terminal)
-int globalCount;
+int tileScale = 8; //default scale is 8
 
-//text
-int tileScale = 8;
-
-//process input
 //declare functions
 void render8Bit(int[], int, int);
 void renderString(int, int, int, char[]);
 
-/*
-
-void display(){
-//clear screen
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-//temp code
-
-
-	renderString(100, 100, 1, "THIS IS SOME SMALL ASS ONE POINT TEXT DAWG");
-
-	renderString(50, 120, 2, "ABCDEFGHIJKLMNKOPQRSTUV");
-
-	renderString(50, 140, 2, "abcdeFGHIJKLMNKOPQRSTUV");
-
-
-	renderString(20, 200, 2, "LOOK HERE LOOK LISTEN APEEARING OFFLINE DOES NOT FUCKING STOP IT");
-
-	renderString(100, 160, 4, "0FOIUREWHF 0");
-
-
-
-//verbosity
-
-	if (verbose == 1){
-
-		//clear console
-		printf("\e[1;1H\e[2J");
-	}
-
-	glutSwapBuffers();
-}
-
-*/
 void renderString(int xo, int yo, int size, char string[]){
 	int saveScale = tileScale;
 	tileScale = size;
 	int length = strlen(string);
 	for (int index = 0; index < length; index ++){
 		//numbers and other characters
-		if(string[index] == '0'){
-			render8Bit(zero, xo, yo); 
-
-		}
-
 		//letter
 		switch (string[index]){
 			case 'A':
@@ -175,6 +129,49 @@ void renderString(int xo, int yo, int size, char string[]){
 			case 'e':
 	 			render8Bit(lE, xo, yo);
 				break;
+			//numbers
+
+
+			case '0':
+	 			render8Bit(zero, xo, yo);
+				break;
+			case '1':
+	 			render8Bit(one, xo, yo);
+				break;
+			case '2':
+	 			render8Bit(two, xo, yo);
+				break;
+
+			case '3':
+	 			render8Bit(three, xo, yo);
+				break;
+			case '4':
+	 			render8Bit(four, xo, yo);
+				break;
+			case '5':
+	 			render8Bit(five, xo, yo);
+				break;
+	
+			case '6':
+	 			render8Bit(six, xo, yo);
+				break;
+			case '7':
+	 			render8Bit(seven, xo, yo);
+				break;
+			case '8':
+	 			render8Bit(eight, xo, yo);
+				break;
+	
+			case '9':
+	 			render8Bit(nine, xo, yo);
+				break;
+			//characters	
+
+			case '@':
+	 			render8Bit(address, xo, yo);
+				break;
+	
+
 	
 		}
 
@@ -192,6 +189,7 @@ void renderString(int xo, int yo, int size, char string[]){
 
 	tileScale = saveScale;
 }
+
 
 
 void render8Bit(int* texture, int xOff, int yOff){
@@ -214,25 +212,4 @@ void render8Bit(int* texture, int xOff, int yOff){
 	}	
 }
 
-/*
-void init(){
-	glClearColor(0.8,0.8,0.8,0);
- 	gluOrtho2D(0,800,600,0);
-}
 
-
-int main(int argc, char* argv[]){
- //memset(map, 22, 12);
- 
- //system("timidity test/Quake_II_-_Descent_into_Cerberon.mid"); does indeed work
-	glutInit(&argc, argv);
- 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
- 	glutInitWindowSize(800,600);
- 	glutInitWindowPosition(200,200);
-	glutCreateWindow("GLTEXT");
- 	init();
-	glutDisplayFunc(display);
- 	srand(time(NULL)); //seed random number
-	glutMainLoop();
-}
-*/

@@ -1,2 +1,3 @@
-# deckbox gui experiments
-Two very simple example GUIs, one written in XForms and C and the other written in FLTK and C++, the XForms UI is in a more "complete" state.
+# DeckBox GUI Experiments
+Two simple GUIs to act as the frontend for the DeckBox, one written in python with pyQT and the other written in C and GLUT (openGL).
+The previous GUIs (Xforms and FLTK) in the "deprecated" directory are no longer relevant.

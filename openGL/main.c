@@ -18,23 +18,63 @@
 #include "assets/glText.h"	//text rendering library
 #include "assets/hydro_small.ppm"
 
-//deckbox stuff
+/* named pipe definitions*/
+//remoteRX
 int fd;
 char rxStream[32];
 char * myfifo = "../transfer_file";
+//takeControl
+int takeControl = 0; //local variable 
+
+int takeControlD; //takeControl device
+char takeControl_stream[2];
+char *takeControlPipe = "../control_status_pipe";
+
+
+void takeControl_set(int mode){
+
+	takeControlD = open(takeControlPipe, O_WRONLY);
+	if (mode == 1){
+		//manual mode
+		takeControl_stream[0] = '1';
+		takeControl_stream[1] = '\0';
+		
+	}else if (mode == 0){
+		takeControl_stream[0] = '0';
+		takeControl_stream[1] = '\0';
+		
+	}
+
+	write(takeControlD, takeControl_stream, 2);
+	close(takeControlD);
+	
+
+}
+
+
 
 
 void remoteRX_capture(){
+		
+	//printf ("pipe status %i\n", access(myfifo, F_OK));
+/*
+	if(myfifo == NULL) {
+    		//file not found
+		printf("transfer_file not found\n");
+		exit(1);
+	} 		
+	
+*/
 
 
-		fd = open(myfifo,O_RDONLY);
-        	read(fd, rxStream, 32);
-        	close(fd);
-		//printf("%s\n", rxStream);
+	fd = open(myfifo,O_RDONLY);
+       	read(fd, rxStream, 32);
+       	close(fd);
+	//printf("%s\n", rxStream);
 
-		for (int i = 0; i < 30; i++){
-			printf("rxStream[%i] = %c\n", i, rxStream[i]);
-		}
+	for (int i = 0; i < 30; i++){
+		printf("rxStream[%i] = %c\n", i, rxStream[i]);
+	}
 	
 
 }
@@ -98,13 +138,12 @@ void remoteRX_parse(){
 }
 
 
+//definitions
+int statusBox[] = {440, 10, 340, 240, 2, 1};
+
+char mode_string[10] = "MANUAL";
 
 
-
-
-//TODO
-/*
-*/
 
 void display(){
 	//clear screen
@@ -125,8 +164,7 @@ void display(){
 	//draw gui elements
 	updateRectObject(buttonBox);
 	updateRectObject(inputStatusBox);
-
-	remoteRX_capture();
+	updateRectObject(statusBox);
 
 	//draw sticks
 		drawStatusBar(240, 50, 100, 20, sticks[0], 0, 1000, 'h');
@@ -139,14 +177,34 @@ void display(){
 
 	//text
 	renderString(20, 20, 1, "BUTTONS");
-
 	renderString(240, 20, 1, "INPUT VISUAL");
+	takeControl_set(0);
+	if (takeControl_stream[0] == '1'){
+		
+		strcpy(mode_string, "MANUAL");
+	}else{
+		strcpy(mode_string, "AUTO");
+	}
+
+
+	//status information
+	renderString(460, 20, 1, "STATUS");
+		renderString(460, 50, 1, "LEAK SENSOR:");
+			renderString(560, 50, 1, "NO LEAK");
+		renderString(460, 70, 1, "CONTROL MODE:");
+			renderString(580, 70, 1, mode_string);
+
+
+
+
+
 	//deckBox Logo
 
 	renderString(550, 540, 3, "DECKBOX GL");
 
 	renderTexture(logo, 620, 440, 96, 96);
 
+	remoteRX_capture();
 	remoteRX_parse();
 	glutSwapBuffers();
 }

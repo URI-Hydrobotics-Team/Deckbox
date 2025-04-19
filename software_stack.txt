@@ -1,0 +1,18 @@
+[DeckBox and AUV software stack definitions]
+
+
+-DeckBox GUI
+	remoteRX: recieves data from input devices such as a USB controller or PPM data over serial via the arduino and serves that data to other programs via a named pipe
+	dataRX: recieves data from the AUV over a C/C++ socket and serves that data to other programs via a named pipe
+	takeControl: recieves input from the deckBox-GUI program and remoteRX and sends that data to the AUV over a C/C++ socket 
+
+
+-AUV
+	-Rasperry Pi
+		dataTX: recieves data from named pipes served by programs such as sensorRX and send that data to the deckBox via a C/C++ socket
+		motorControl: recieves data over a C/C++ socket from takeControl and relays that information over serial (USB) to the Pico which will then generate PWM signals to drive the ESCs
+		sensorRX: recieves data over various protocols from sensors such as the IMU or leak detectors and relays that data over a named pipe to dataTX
+
+	-Pico/Arduino
+		pico_software: recieves control data from the Pi over serial (USB) and generates PWM signals to control the ESCs
+

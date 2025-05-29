@@ -11,9 +11,10 @@
 #include <netdb.h> 
 #include <fcntl.h> //include fentanyl
 
-#include "connections.h"
-#include "config.h"
 
+#include "config.h"
+#include "connections.h"
+#include "controller.h"
 
 /* AUV HUB */
 char *auv_hub_ip = AUVHUBIP;
@@ -26,11 +27,11 @@ int auv_hub_port = AUVHUBPORT;
 
 void printHelp(){
 	std::cout << "DeckBox-CLI version: " << version_string << "\n";
-	std::cout << "\nUSAGE:\n";
+	std::cout << "\nUSAGE:";
 	std::cout << "\t\tdeckbox-cli <mode> <arguments>\n"; 
 		
 	std::cout << "\tModes: help, listen\n";
-	std::cout << "\tListen Arguments: \n";	
+	std::cout << "\t[Listen] arguments: <controller (/dev/input/js*)>\n";	
 
 
 
@@ -47,10 +48,10 @@ void listen(){
 	std::cout << "DeckBox-CLI version: " << version_string << "\n";
 		
 	//socketInit(auv_hub_ip, auv_hub_port); // display messages from auv hub	
-
-	hubSocketInit("127.0.0.1", 8100); // setup hub socket
+	auv_rx_socket hubSocket;
+	hubSocket.init("127.0.0.1", 8100); // setup hub socket
 	while (1){	
-		hubSocketRec(); // rec. data from hub socket
+		hubSocket.rec(1); // rec. data from hub socket
 		//loop for testing
 	}
 	//do other things

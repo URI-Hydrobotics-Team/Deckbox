@@ -50,13 +50,24 @@ void listen(){
 	//socketInit(auv_hub_ip, auv_hub_port); // display messages from auv hub	
 	auv_rx_socket hubSocket;
 	hubSocket.init("127.0.0.1", 8100); // setup hub socket
-	while (1){	
+
+	/* Initialize controller input */
+	controller_t test_controller; // new controller
+	test_controller.setDevice("/dev/input/js0"); //defaults too "/dev/input/js0"
+	test_controller.init();
+	while (1){
+
+	
+		/* loop for testing */
+
 		hubSocket.rec(1); // rec. data from hub socket
-		//loop for testing
+		//test_controller.poll();
+
+    		//printf("\033[H\033[J"); //clear screen
 	}
 	//do other things
 
-    	//printf("\033[H\033[J"); //clear screen
+    	printf("\033[H\033[J"); //clear screen
 	
 
 

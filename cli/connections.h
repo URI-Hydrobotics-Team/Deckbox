@@ -7,6 +7,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/select.h>
 #include <netinet/in.h>
 #include <netdb.h> 
 #include <fcntl.h> //include fentanyl
@@ -30,9 +31,12 @@ class auv_rx_socket{
 	public:
 
 	char* rec(int print){
+		/* first check fd avaliabilty */
+		
 
 	
 		recvlen = recvfrom(fd,rx_buffer, 256, 0, (struct sockaddr *)&remote_addr, &addrlen);
+		
 		if (recvlen > 0) {
 			/* 
 			define how the message is handled 
@@ -43,13 +47,13 @@ class auv_rx_socket{
 				printf("received %d bytes\n", recvlen);
 				printf("received message: \"%s\"\n",rx_buffer);
 			}
-
+			shutdown(fd, 2);
+			usleep(SOCKET_SLEEP); //sleep for 100ms or so
+			return rx_buffer;
 			
 		}
-
-		shutdown(fd, 2);
-		usleep(SOCKET_TIMEOUT); //sleep for 100ms or so
-		return rx_buffer;
+	
+	
 	}
 
 
@@ -61,6 +65,13 @@ class auv_rx_socket{
 		//set fd to non blocking
 		int flags = fcntl(fd, F_GETFL, 0);
 		fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+
+		fcntl(fd, F_SETFL, flags | SO_REUSEADDR);
+		//set socket timeout
+		struct timeval timeout={0,SOCKET_TIMEOUT};  //tv_sec, tv_usec
+		setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout,sizeof(struct timeval));
+
+		
 
 		memset((char *)&my_addr, 0, sizeof(my_addr));
 		my_addr.sin_family = AF_INET;

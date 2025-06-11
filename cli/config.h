@@ -16,7 +16,7 @@ std::string version_string = "alpha 0";
 /* CONNECTIONS */
 #define MULTICASTGROUP "224.0.0.10"
 #define HUB_IP "127.0.0.1"
-#define HUB_PORT_RX 8200
-#define HUB_PORT_TX 8100
+#define HUB_PORT_RX 8100
+#define HUB_PORT_TX 8200
 #define LOG_IP "127.0.0.1"
 #define LOG_PORT_TX 8103

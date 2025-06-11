@@ -37,7 +37,18 @@ void initDevices(){
 	test_controller.init();
 
 
+	//test_controller.poll();
 
+
+	std::cout << "Devices Initialized\n";
+}
+
+void readFromDevices(){
+	
+	
+	if (input_hub.probe() > 0){
+		input_hub.rec(1); // rec. data from hub socket
+	}
 
 
 }
@@ -56,7 +67,6 @@ void addMessage(char *msg){
 
 void printElements(){
 
-	vtClear();	
 	vtGoto(1,1);
 	std::cout << "DeckBox-CLI version: " << version_string << "\n";
 	
@@ -91,21 +101,19 @@ void printHelp(){
 
 
 void listen(){ 
+	
+	vtClear();	
 	/* 
 		Main function for defining which sockets to listen to
 	*/
 	initDevices();
 	printElements();	
 		/* Initialize controller input */
-		while (1){
-
-	
+		while (1){	
 		/* loop for testing */
+			readFromDevices();
 
-		input_hub.rec(1); // rec. data from hub socket
-		//test_controller.poll();
-
-	}
+		}
 	//do other things
 
     	vtClear(); //clear screen

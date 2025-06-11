@@ -1,12 +1,22 @@
 std::string version_string = "alpha 0";
 
+/* CONFIG */
+#define MSG_BUFF_SIZE 1000
 
+/* NETWORK */
 #define SOCKET_SLEEP 1000
 #define SOCKET_TIMEOUT 10000
+#define MULTICASTGROUP "224.0.0.10"
+
+
+/* CONTROLLER */
 #define CONTROLLER_TIMEOUT 10000
-
 #define DEFAULT_CONTROLLER "/dev/input/js0"
-//port and ip definitions
-#define AUVHUBIP "127.0.0.1"
-#define AUVHUBPORT 8100
 
+/* CONNECTIONS */
+#define MULTICASTGROUP "224.0.0.10"
+#define HUB_IP "127.0.0.1"
+#define HUB_PORT_RX 8200
+#define HUB_PORT_TX 8100
+#define LOG_IP "127.0.0.1"
+#define LOG_PORT_TX 8103

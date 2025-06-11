@@ -1,14 +1,9 @@
-#include <iostream>
-#include <string>
-
-#include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
-#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h> 
 #include <fcntl.h> //include fentanyl
 
@@ -16,7 +11,6 @@
 
 /*
 	Socket device setup 
-	TODO: turn these into classes
 */
 
 
@@ -58,7 +52,7 @@ class auv_rx_socket{
 
 
 
-	void init(char *host, int port){
+	void init(const char *host, int port, const char *group){
 		/* Initialize a socket */
 		fd = socket(AF_INET, SOCK_DGRAM, 0);
 
@@ -66,7 +60,7 @@ class auv_rx_socket{
 		int flags = fcntl(fd, F_GETFL, 0);
 		fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 
-		fcntl(fd, F_SETFL, flags | SO_REUSEADDR);
+
 		//set socket timeout
 		struct timeval timeout={0,SOCKET_TIMEOUT};  //tv_sec, tv_usec
 		setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout,sizeof(struct timeval));
@@ -75,10 +69,25 @@ class auv_rx_socket{
 
 		memset((char *)&my_addr, 0, sizeof(my_addr));
 		my_addr.sin_family = AF_INET;
-		//my_addr.sin_addr.s_addr = htonl(std::stoi(host));
-		//TODO allow user to select ip
-		my_addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+		my_addr.sin_addr.s_addr = inet_addr(host);
 		my_addr.sin_port = htons(port);
+		/* multicast support */
+		int reuse = 1;
+    		if (setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, (const char*)&reuse, sizeof(reuse)) < 0){
+        		perror("setsockopt(SO_REUSEPORT) failed");
+		}
+    		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse)) < 0){
+        		perror("setsockopt(SO_REUSEADDR) failed");
+		}
+
+		struct ip_mreq mreq;
+   		mreq.imr_multiaddr.s_addr = inet_addr(group);
+    		mreq.imr_interface.s_addr = inet_addr(host);
+    		if (setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*) &mreq, sizeof(mreq)) < 0){
+        		perror("failed to seup multicastt");
+    		}
+		/* bind the socket */
+
 		if (bind(fd, (struct sockaddr *)&my_addr, sizeof(my_addr)) < 0) {
 			//std::cout << "bind to " << host ":" << port << "failed\n";
 			std::cout << "failed to bind socket\n";
@@ -91,6 +100,71 @@ class auv_rx_socket{
 };
 
 
+
+
+class auv_tx_socket{
+
+	private:
+		char *server= "127.0.0.1";	/* change this to use a different server */
+		struct sockaddr_in my_addr, remote_addr;
+		int port, fd, i, slen=sizeof(remote_addr);
+		char tx_buffer[256];
+
+	public:
+		void init(int port, const char *group){
+
+		/* socket used to broadcast to others */
+		if ((fd=socket(AF_INET, SOCK_DGRAM, 0)) == - 1){
+			std::cout << "socket created\n";
+		}
+		/* bind it to all local addresses and pick any port number */
+
+		memset((char *)&my_addr, 0, sizeof(my_addr));
+		my_addr.sin_family = AF_INET;
+		my_addr.sin_addr.s_addr = inet_addr(group);
+		my_addr.sin_port = htons(0);
+
+
+		int reuse = 1;
+    		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse)) < 0){
+        		perror("setsockopt(SO_REUSEADDR) failed");
+		}
+    		if (setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, (const char*)&reuse, sizeof(reuse)) < 0){
+        		perror("setsockopt(SO_REUSEPORT) failed");
+		}
+
+
+		if (bind(fd, (struct sockaddr *)&my_addr, sizeof(my_addr)) < 0) {
+			std::cout << "bind failed\n";
+		}       
+
+
+		memset((char *) &remote_addr, 0, sizeof(remote_addr));
+		remote_addr.sin_family = AF_INET;
+		remote_addr.sin_port = htons(port);
+		if (inet_aton(server, &remote_addr.sin_addr) == 0) {
+			std::cout << "inet_aton() failed\n";
+			exit(1);
+		}
+
+
+		}
+		void transmit(const char *bufferIn){
+			strncpy(tx_buffer, bufferIn, strlen(bufferIn));
+			if (sendto(fd, tx_buffer, strlen(tx_buffer), 0, (struct sockaddr *)&remote_addr, slen) == -1){
+				std::cout << "error sendto\n";
+			}
+
+
+		}
+
+		void closefd(){
+			close(fd);
+		}
+
+
+
+};
 
 
 

@@ -1,26 +1,75 @@
 #include <iostream>
 #include <string>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h> 
 #include <fcntl.h> //include fentanyl
 
 
 #include "config.h"
 #include "connections.h"
 #include "controller.h"
-
+#include "vt100.h"
 /* AUV HUB */
-char *auv_hub_ip = AUVHUBIP;
-int auv_hub_port = AUVHUBPORT;
+
+/* 
+	message buffer
+	holds all recieved messages and prints them in a certian location
+*/
+
+char msgBuffer[MSG_BUFF_SIZE];
+std::string status_string;
+
+/* device definitions */
+auv_rx_socket input_hub; 
+auv_tx_socket output_hub, output_log;
+controller_t test_controller; // new controller
 
 
+
+void initDevices(){
+
+	input_hub.init(HUB_IP, HUB_PORT_RX, MULTICASTGROUP); // setup hub socket
+
+	test_controller.setDevice("/dev/input/js0"); //defaults to "/dev/input/js0"
+	test_controller.init();
+
+
+
+
+
+}
+
+void printMessages(){
+	
+
+
+}
+
+void addMessage(char *msg){
+
+}
+
+
+
+void printElements(){
+
+	vtClear();	
+	vtGoto(1,1);
+	std::cout << "DeckBox-CLI version: " << version_string << "\n";
+	
+	vtGoto(40,1);
+	std::cout << "STATUS >>>" << status_string << "\n";
+	vtGoto(1,2);
+	std::cout << "--- MESSAGE CENTER ---\n";
+	vtGoto(1,3);
+	std::cout << "[INTERNAL]\n";
+	vtGoto(1,27);
+	std::cout << "[EXTERNAL]\n";
+
+}
 
 /*function declerations */
 
@@ -45,29 +94,21 @@ void listen(){
 	/* 
 		Main function for defining which sockets to listen to
 	*/
-	std::cout << "DeckBox-CLI version: " << version_string << "\n";
-		
-	//socketInit(auv_hub_ip, auv_hub_port); // display messages from auv hub	
-	auv_rx_socket hubSocket;
-	hubSocket.init("127.0.0.1", 8100); // setup hub socket
-
-	/* Initialize controller input */
-	controller_t test_controller; // new controller
-	test_controller.setDevice("/dev/input/js0"); //defaults too "/dev/input/js0"
-	test_controller.init();
-	while (1){
+	initDevices();
+	printElements();	
+		/* Initialize controller input */
+		while (1){
 
 	
 		/* loop for testing */
 
-		hubSocket.rec(1); // rec. data from hub socket
+		input_hub.rec(1); // rec. data from hub socket
 		//test_controller.poll();
 
-    		//printf("\033[H\033[J"); //clear screen
 	}
 	//do other things
 
-    	printf("\033[H\033[J"); //clear screen
+    	vtClear(); //clear screen
 	
 
 

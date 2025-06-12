@@ -1,0 +1,43 @@
+/* definitions for Sony's SIXAXIS controller */
+
+/*
+observations
+
+D-PAD
+	UP	B13
+	DOWN	B14
+	LEFT	B15
+	RIGHT	B16
+	
+FACE-BUTTONS
+	T	B2
+	S	B3
+	C	B1
+	X	B0
+
+TRIGGERS
+	L1	B4
+	L2	A1/B6
+	R1	B5
+	R2	A2/B7
+
+STICKS
+	LCLICK	B11
+	L	A0
+	RCLICK	B12
+	R	A1/A2
+
+OTHER
+	PS	B10
+	SELECT	B8
+	START	B9
+
+*/
+
+
+
+
+
+
+
+

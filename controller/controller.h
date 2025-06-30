@@ -15,10 +15,8 @@ class controller_t {
     		int js;
     		struct js_event event;
     		size_t axis;
-	
-
     		struct axis_state axes[3] = {0};
-		
+		std::string event_buffer;
 	public:
 
 
@@ -67,8 +65,13 @@ class controller_t {
 	}
 
 
+	const char *get_buffer(){
 
-
+		return event_buffer.c_str();
+	}
+	void flush_buffer(){
+		event_buffer = "";
+	}
 
 
 	void setDevice(char *dev){
@@ -97,23 +100,32 @@ class controller_t {
 
 		struct timeval timeout={0,CONTROLLER_TIMEOUT};  //tv_sec, tv_usec
 		setsockopt(js, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout,sizeof(struct timeval));
-
+		flush_buffer();
 
 
 	}
 
-	void poll(){
+	const char *poll(){
 		//std::cout << "polling\n";
 		read_event(); //read event
+		std::string str;
+		int button;
 		switch (event.type){
 			/* for testing*/
             		case JS_EVENT_BUTTON:
-                		printf("Button %u %s\n", event.number, event.value ? "pressed" : "released");
+                		//printf("Button %u %s\n", event.number, event.value ? "pressed" : "released");
+				button = (int) event.number;
+				str = ":"; str += "B "; str += std::to_string(button); str += ' '; str += std::to_string(event.value); str += ' ';
+				std::cout << str << '\n';
+				return str.c_str();
                 		break;
             		case JS_EVENT_AXIS:
                 		axis = get_axis_state();
                 		if (axis < 3){
-                    			printf("Axis %zu at (%6d, %6d)\n", axis, axes[axis].x, axes[axis].y);
+                    			//printf("Axis %zu at (%6d, %6d)\n", axis, axes[axis].x, axes[axis].y);
+					str = ":"; str += "A "; str += std::to_string(axis); str += ' '; str += std::to_string(axes[axis].x); str += ' '; str += std::to_string(axes[axis].y); str += ' ';
+					std::cout << str << '\n';
+					return str.c_str(); 
                 		}
 				break;
             		default:

@@ -20,3 +20,5 @@ std::string version_string = "alpha 0";
 #define HUB_PORT_TX 8200
 #define LOG_IP "127.0.0.1"
 #define LOG_PORT_TX 8103
+#define CONTROLLER_BACKEND_IP "127.0.0.1"
+#define CONTROLLER_BACKEND_PORT_RX 8104

@@ -172,7 +172,7 @@ class auv_tx_socket{
 			if (sendto(fd, tx_buffer, strlen(tx_buffer), 0, (struct sockaddr *)&remote_addr, slen) == -1){
 				std::cout << "error sendto\n";
 			}
-
+			
 
 		}
 

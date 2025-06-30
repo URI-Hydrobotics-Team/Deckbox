@@ -14,4 +14,4 @@ std::string version_string = "alpha 0";
 
 /* CONNECTIONS */
 #define DECKBOX_IP "127.0.0.1"
-#define DECKBOX_PORT_TX 8200
+#define DECKBOX_PORT_TX 8104

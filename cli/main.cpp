@@ -23,18 +23,18 @@ char msgBuffer[MSG_BUFF_SIZE];
 std::string status_string;
 
 /* device definitions */
-auv_rx_socket input_hub; 
+auv_rx_socket input_hub, input_controller_backend; 
 auv_tx_socket output_hub, output_log;
-controller_t test_controller; // new controller
+//controller_t test_controller; // new controller
 
 
 
 void initDevices(){
-
+	
 	input_hub.init(HUB_IP, HUB_PORT_RX, MULTICASTGROUP); // setup hub socket
-
-	test_controller.setDevice("/dev/input/js0"); //defaults to "/dev/input/js0"
-	test_controller.init();
+	input_controller_backend.init(CONTROLLER_BACKEND_IP, CONTROLLER_BACKEND_PORT_RX, MULTICASTGROUP);
+	//test_controller.setDevice("/dev/input/js0"); //defaults to "/dev/input/js0"
+	//test_controller.init();
 
 
 	//test_controller.poll();
@@ -50,6 +50,11 @@ void readFromDevices(){
 		input_hub.rec(1); // rec. data from hub socket
 	}
 
+	if (input_controller_backend.probe() > 0){
+
+
+		input_controller_backend.rec(1); //rec. data from controller backend
+	}
 
 }
 

@@ -13,6 +13,15 @@
 	Socket device setup 
 */
 
+void initStr(char *str, int len){
+	/* initiate a string with a series of null terminators */
+	for (int i = 0; i < len; i++){
+		str[i] = 0;
+	}
+}
+
+
+
 
 class auv_rx_socket{
 	private:
@@ -168,6 +177,7 @@ class auv_tx_socket{
 
 		}
 		void transmit(const char *bufferIn){
+			initStr(tx_buffer, 256);
 			strncpy(tx_buffer, bufferIn, strlen(bufferIn));
 			if (sendto(fd, tx_buffer, strlen(tx_buffer), 0, (struct sockaddr *)&remote_addr, slen) == -1){
 				std::cout << "error sendto\n";

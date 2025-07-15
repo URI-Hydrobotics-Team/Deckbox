@@ -43,21 +43,66 @@ void convertToSixaxis(controller_generic_profile *out, controller_generic_raw in
 	if (in.getButtonValue() == 1){
 	switch (in.getButtonId()){
 		case 0:
-				out->fc_1 = 1;
-				break;
+			out->fc_1 = 1;
+			break;
 		case 1:
-				out->fc_2 = 1;
-				break;
+			out->fc_2 = 1;
+			break;
 		case 2:
-				out->fc_3 = 1;
-				break;
+			out->fc_3 = 1;
+			break;
 	
 		case 3:
-				out->fc_4 = 1;
-				break;
-	
+			out->fc_4 = 1;
+			break;
+		case 4:
+			out->lt = 1;
+			break;
 
-	}
+		case 5:
+			out->rt = 1;
+			break;
+		case 6:
+			out->lt_a = 1;
+			break;
+	
+		case 7:
+			out->rt_a = 1;
+			break;
+
+		case 8:
+
+			out->select = 1;
+			break;
+		case 9:
+
+			out->start = 1;
+			break;
+		case 10:
+			out->super = 1;
+			break;
+
+		case 11:
+			out->sc_left = 1;
+			break;
+
+		case 12:
+			out->sc_right = 1;
+			break;
+		case 13:
+			out->dp_up = 1;
+			break;
+		case 14:
+			out->dp_down = 1;
+			break;
+
+		case 15:
+			out->dp_left = 1;
+			break;
+		case 16:
+			out->dp_right = 1;
+			break;
+		}
 
 	
 	}
@@ -67,7 +112,10 @@ void convertToSixaxis(controller_generic_profile *out, controller_generic_raw in
 	
 	out->slr_x = (0.0 + in.getAxisY(1)) / 32767;
 	out->slr_y = (0.0 + in.getAxisX(2)) / 32767;
-
+	
+	/* analog triggers */
+	out ->lt_a =  (0.0 + in.getAxisX(1)) / 32767;
+	out ->rt_a =  (0.0 + in.getAxisY(2)) / 32767;
 
 }
 

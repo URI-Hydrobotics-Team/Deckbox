@@ -28,6 +28,11 @@ class controller_generic_profile{
 		int sc_left = 0;
 		int sc_right = 0;
 		
+		/* triggers */
+		int lt = 0;
+		int rt = 0;
+	
+		
 		/*other buttons */
 		int start = 0;
 		int select = 0;
@@ -36,6 +41,9 @@ class controller_generic_profile{
 		/* sticks (val: 0 - 1)*/ 
 		double sll_x, sll_y; // stick_location_left_*
 		double slr_x, slr_y; // stick_location_right_*
+
+		/* analog triggers */
+		double lt_a, rt_a;
 
 		void resetButtons(){
 
@@ -53,7 +61,8 @@ class controller_generic_profile{
 			start = 0;
 			select = 0;
 			super = 0; //xbox button, ps button, etc.       
-
+			lt = 0;
+			rt = 0;
 		}
 
 		

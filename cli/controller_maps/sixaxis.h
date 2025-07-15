@@ -61,6 +61,12 @@ void convertToSixaxis(controller_generic_profile *out, controller_generic_raw in
 
 	
 	}
+	/* set sticks */
+	out->sll_x = (0.0 + in.getAxisX(0)) / 32767;
+	out->sll_y = (0.0 + in.getAxisY(0)) / 32767;
+	
+	out->slr_x = (0.0 + in.getAxisY(1)) / 32767;
+	out->slr_y = (0.0 + in.getAxisX(2)) / 32767;
 
 
 }

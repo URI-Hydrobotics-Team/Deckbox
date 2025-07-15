@@ -34,8 +34,8 @@ class controller_generic_profile{
 		int super = 0; //xbox button, ps button, etc.		
 
 		/* sticks (val: 0 - 1)*/ 
-		double sll_left, sll_right, sll_up, sll_down; // stick_location_left_*
-		double slr_left, slr_right, slr_up, slr_down; // stick_location_right_*
+		double sll_x, sll_y; // stick_location_left_*
+		double slr_x, slr_y; // stick_location_right_*
 
 		void resetButtons(){
 
@@ -85,6 +85,16 @@ class controller_generic_raw{
 
 		void setAxisY(int i, long val){
 			axis_y[i] = val;
+		}
+
+		long getAxisX(int i){
+			return axis_x[i];
+
+		}
+
+		long getAxisY(int i){
+			return axis_y[i];
+
 		}
 
 		void print(){

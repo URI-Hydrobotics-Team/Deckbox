@@ -88,6 +88,12 @@ void printElements(){
 	std::cout << "\t\tButton 2: " << deckbox_input.fc_2 << '\n';
 	std::cout << "\t\tButton 3: " << deckbox_input.fc_3 << '\n';
 	std::cout << "\t\tButton 4: " << deckbox_input.fc_4 << '\n';
+
+	
+	std::cout << "\tSticks:\n";
+	std::cout << "\t\tLeft: " << deckbox_input.sll_x << ' ' << deckbox_input.sll_y << '\n';
+	std::cout << "\t\tRight: " << deckbox_input.slr_x << ' ' << deckbox_input.slr_y << '\n';
+
 	std::cout << "\n--- MESSAGE CENTER ---\n";
 	sixaxis_raw.print();
 }

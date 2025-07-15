@@ -36,8 +36,32 @@ OTHER
 
 
 
+void convertToSixaxis(controller_generic_profile *out, controller_generic_raw in){
+	out->resetButtons();
+	/* button */
+
+	if (in.getButtonValue() == 1){
+	switch (in.getButtonId()){
+		case 0:
+				out->fc_1 = 1;
+				break;
+		case 1:
+				out->fc_2 = 1;
+				break;
+		case 2:
+				out->fc_3 = 1;
+				break;
+	
+		case 3:
+				out->fc_4 = 1;
+				break;
+	
+
+	}
+
+	
+	}
 
 
-
-
+}
 

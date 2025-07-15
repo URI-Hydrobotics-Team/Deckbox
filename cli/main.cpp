@@ -11,6 +11,7 @@
 #include "config.h"
 #include "connections.h"
 #include "controller.h"
+#include "controller_maps/sixaxis.h"
 #include "vt100.h"
 /* AUV HUB */
 
@@ -25,19 +26,24 @@ std::string status_string;
 /* device definitions */
 auv_rx_socket input_hub, input_controller_backend; 
 auv_tx_socket output_hub, output_log;
-//controller_t test_controller; // new controller
 
+
+
+controller_t test_controller; // new controller
+controller_generic_raw sixaxis_raw; // new virtual raw device
+
+controller_generic_profile deckbox_input;
+
+int autopilot = 0;
 
 
 void initDevices(){
 	
 	input_hub.init(HUB_IP, HUB_PORT_RX, MULTICASTGROUP); // setup hub socket
-	input_controller_backend.init(CONTROLLER_BACKEND_IP, CONTROLLER_BACKEND_PORT_RX, MULTICASTGROUP);
-	//test_controller.setDevice("/dev/input/js0"); //defaults to "/dev/input/js0"
-	//test_controller.init();
+	//input_controller_backend.init(CONTROLLER_BACKEND_IP, CONTROLLER_BACKEND_PORT_RX, MULTICASTGROUP);
+	test_controller.setDevice("/dev/input/js0");
+	test_controller.init();
 
-
-	//test_controller.poll();
 
 
 	std::cout << "Devices Initialized\n";
@@ -49,41 +55,41 @@ void readFromDevices(){
 	if (input_hub.probe() > 0){
 		input_hub.rec(1); // rec. data from hub socket
 	}
-
+	test_controller.poll(&sixaxis_raw);
+	convertToSixaxis(&deckbox_input, sixaxis_raw);
+	//sixaxis_raw.print();
+	/*
 	if (input_controller_backend.probe() > 0){
 
 
 		input_controller_backend.rec(1); //rec. data from controller backend
 	}
 
-}
-
-void printMessages(){
-	
-
+	*/
 
 }
-
-void addMessage(char *msg){
-
-}
-
-
 
 void printElements(){
 
-	vtGoto(1,1);
+	//vtGoto(1,1);
 	std::cout << "DeckBox-CLI version: " << version_string << "\n";
-	
-	vtGoto(40,1);
-	std::cout << "STATUS >>>" << status_string << "\n";
-	vtGoto(1,2);
-	std::cout << "--- MESSAGE CENTER ---\n";
-	vtGoto(1,3);
-	std::cout << "[INTERNAL]\n";
-	vtGoto(1,27);
-	std::cout << "[EXTERNAL]\n";
+	/* controller input*/
 
+	std::cout << "--- CONTROL STAUS ---\n";
+	if (autopilot){
+		std::cout << "\tControl Scheme: AUTOMATIC\n";
+	}else{
+
+		std::cout << "\tControl Scheme: MANUAL\n";
+	}
+	
+	std::cout << "\tButtons:\n";
+	std::cout << "\t\tButton 1: " << deckbox_input.fc_1 << '\n';
+	std::cout << "\t\tButton 2: " << deckbox_input.fc_2 << '\n';
+	std::cout << "\t\tButton 3: " << deckbox_input.fc_3 << '\n';
+	std::cout << "\t\tButton 4: " << deckbox_input.fc_4 << '\n';
+	std::cout << "\n--- MESSAGE CENTER ---\n";
+	sixaxis_raw.print();
 }
 
 /*function declerations */
@@ -116,7 +122,9 @@ void listen(){
 		/* Initialize controller input */
 		while (1){	
 		/* loop for testing */
+			vtClear();
 			readFromDevices();
+			printElements();
 
 		}
 	//do other things

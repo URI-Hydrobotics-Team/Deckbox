@@ -7,11 +7,107 @@ struct axis_state {
     	short x, y;
 };
 
+class controller_generic_profile{
+	public:
+
+		/* d-pad */
+		int dp_up = 0;
+		int dp_down = 0;
+		int dp_left = 0;
+		int dp_right = 0;
+
+		/* face buttons */
+
+		int fc_1 = 0;
+		int fc_2 = 0;
+		int fc_3 = 0;
+		int fc_4 = 0;
+
+		/* stick click*/
+		
+		int sc_left = 0;
+		int sc_right = 0;
+		
+		/*other buttons */
+		int start = 0;
+		int select = 0;
+		int super = 0; //xbox button, ps button, etc.		
+
+		/* sticks (val: 0 - 1)*/ 
+		double sll_left, sll_right, sll_up, sll_down; // stick_location_left_*
+		double slr_left, slr_right, slr_up, slr_down; // stick_location_right_*
+
+		void resetButtons(){
+
+
+			dp_up = 0;
+			dp_down = 0;
+			dp_left = 0;
+			dp_right = 0;
+			fc_1 = 0;
+			fc_2 = 0;	
+			fc_3 = 0;
+			fc_4 = 0;
+			sc_left = 0;
+			sc_right = 0;             
+			start = 0;
+			select = 0;
+			super = 0; //xbox button, ps button, etc.       
+
+		}
+
+		
+};
+
+class controller_generic_raw{
+
+	private:
+		int button_id, button_value;
+		long axis_x[4];
+		long axis_y[4];
+
+	public:
+		void setButton(int id, int val){
+			button_id = id;
+			button_value = val;
+		}
+
+		int getButtonId(){
+			return button_id;
+		}
+		int getButtonValue(){
+			return button_value;
+		}
+
+		void setAxisX(int i, long val){
+			axis_x[i] = val;
+		}
+
+		void setAxisY(int i, long val){
+			axis_y[i] = val;
+		}
+
+		void print(){
+			std::cout << "Button: " << button_id << ' ' << button_value << '\n';
+
+			for (int i = 0; i < 4; i++){
+				std::cout << "Stick: " << i << "X, Y: " << axis_x[i] << ", " << axis_y[i] << '\n';
+		
+			}
+
+		}
+
+
+};
+
+
+
+
 class controller_t {
 
 
 	private:
-		char *device;
+		char device[64];
     		int js;
     		struct js_event event;
     		size_t axis;
@@ -71,16 +167,11 @@ class controller_t {
 
 
 
-	void setDevice(char *dev){
-		device = dev;
+	void setDevice(const char *dev){
+		strncpy(device, dev, 64);
 	}
 
-	void init(){
-		/*check if device has been set */
-		if (strlen(device) == NULL){
-			device = DEFAULT_CONTROLLER;
-			std::cout << "Using 'js0' for controller\n";
-		}	
+	void init(){	
 		/* open device */
 		js = open(device, O_RDONLY);
 		if (js == -1){
@@ -102,19 +193,22 @@ class controller_t {
 
 	}
 
-	void poll(){
+	void poll(controller_generic_raw *gamepad){
 		//std::cout << "polling\n";
 		read_event(); //read event
 		switch (event.type){
 			/* for testing*/
             		case JS_EVENT_BUTTON:
-                		printf("Button %u %s\n", event.number, event.value ? "pressed" : "released");
+                		//printf("Button %u %s\n", event.number, event.value ? "pressed" : "released");
+				gamepad->setButton((int) event.number,(int) event.value);
                 		break;
             		case JS_EVENT_AXIS:
                 		axis = get_axis_state();
                 		if (axis < 3){
-                    			printf("Axis %zu at (%6d, %6d)\n", axis, axes[axis].x, axes[axis].y);
-                		}
+                    			//printf("Axis %zu at (%6d, %6d)\n", axis, axes[axis].x, axes[axis].y);
+					gamepad->setAxisX(axis, axes[axis].x);
+					gamepad->setAxisY(axis, axes[axis].y);
+				}
 				break;
             		default:
                 		break; //ignore

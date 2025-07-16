@@ -63,8 +63,8 @@ void sendInputData(){
 
 void initDevices(){
 	
-	input_hub.init(HUB_IP, HUB_PORT_RX, MULTICASTGROUP); // setup hub socket
-	output_hub.init(HUB_PORT_TX, MULTICASTGROUP);
+	input_hub.init(HUB_PORT_RX); // setup hub socket
+	output_hub.init(HUB_IP, HUB_PORT_TX);
 	//input_controller_backend.init(CONTROLLER_BACKEND_IP, CONTROLLER_BACKEND_PORT_RX, MULTICASTGROUP);
 	test_controller.setDevice("/dev/input/js0");
 	test_controller.init();

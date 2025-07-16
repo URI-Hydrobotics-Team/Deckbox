@@ -6,7 +6,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <fcntl.h> //include fentanyl
-
+#include <bits/stdc++.h>
 
 #include "config.h"
 #include "connections.h"
@@ -44,6 +44,11 @@ controller_generic_raw sixaxis_raw; // new virtual raw device
 controller_generic_raw f710_raw; // new virtual raw device
 controller_generic_profile deckbox_input;
 
+
+/* variables of interest */
+
+float pressure, temperature, depth, altitude;
+
 int autopilot = 0;
 
 
@@ -57,7 +62,7 @@ void sendInputData(){
 	input_string += inputTemp;
 	strncpy(inputBuffer, input_string.c_str(), 256);
 	output_hub.transmit(inputBuffer);
-
+	usleep(1000);
 }
 
 
@@ -78,23 +83,72 @@ void readFromDevices(){
 	
 	//causing slowdowns, needs to be addressed
 	if (input_hub.probe() > 0){
-		input_hub.rec(1); // rec. data from hub socket
+		strncpy(inputBuffer, input_hub.rec(1), 256); // rec. data from hub socket
 	}
+	
 	
 
 	test_controller.poll(&f710_raw);
 	convertToF710(&deckbox_input, f710_raw);
 	//sixaxis_raw.print();
-	/*
-	if (input_controller_backend.probe() > 0){
-
-
-		input_controller_backend.rec(1); //rec. data from controller backend
-	}
-
-	*/
+	usleep(1000);
 
 }
+
+void processInput(){
+	/* process input_buffer contents */
+
+
+	if (inputBuffer[0] == '!'){ //is legit
+
+		//HUB STATUS PRESSURE
+		if (inputBuffer[1] == 'H' &&
+		    inputBuffer[2] == 'S' &&
+	            inputBuffer[3] == 'P'){
+			int index = 5;
+			std::string press_str, temp_str, depth_str, alt_str;
+
+			for (int i = 0; i < 4; i ++){
+				while (inputBuffer[index] != ' '){
+					if (i == 0){
+						press_str += inputBuffer[index];
+					}
+					if (i == 1){
+						temp_str += inputBuffer[index];
+					}
+					
+					if (i == 2){
+						depth_str += inputBuffer[index];
+					}
+				
+					if (i == 3 && index < 32){
+						alt_str += inputBuffer[index];
+					}
+					index++;
+					
+				}
+				index++;
+
+			}
+			
+			std::cout << press_str << ' ' << temp_str << ' ' << depth_str << ' ' << alt_str << '\n';
+			pressure = std::stof(press_str);
+			temperature = std::stof(temp_str);
+			depth = std::stof(depth_str);
+			//altitude = std::stof(alt_str);
+			
+		}
+
+
+
+
+	}
+	
+
+	initStr(inputBuffer, 256);
+
+}
+
 
 void printElements(){
 
@@ -139,6 +193,11 @@ void printElements(){
 	std::cout << "\t\tLeft: " << deckbox_input.sll_x << ' ' << deckbox_input.sll_y << '\n';
 	std::cout << "\t\tRight: " << deckbox_input.slr_x << ' ' << deckbox_input.slr_y << '\n';
 
+	std::cout << "\n--- ONBOARD STATUS ---\n";
+	std::cout << "Temperature: " << temperature << " degrees celsius\n";
+	std::cout << "Pressure: " << pressure << " \n";
+	std::cout << "Depth: " << depth << " \n";
+	std::cout << "Altitude: " << altitude << " \n";
 	std::cout << "\n--- MESSAGE CENTER ---\n";
 	//sixaxis_raw.print();
 	f710_raw.print();
@@ -176,13 +235,14 @@ void listen(){
 		/* loop for testing */
 			vtClear();
 			readFromDevices();
+			processInput();
 			printElements();
 			sendInputData();
 
 		}
 	//do other things
 
-    	vtClear(); //clear screen
+    	//vtClear(); //clear screen
 	
 
 

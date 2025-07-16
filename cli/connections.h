@@ -33,12 +33,12 @@ class auv_rx_socket{
 		char rx_buffer[256];
 	public:
 
-	char* rec(int print){
+	char *rec(int print){
 		/* first check fd avaliabilty */
 		
 
 	
-		recvlen = recvfrom(fd,rx_buffer, 256, 0, (struct sockaddr *)&remote_addr, &addrlen);
+		recvlen = recvfrom(fd, rx_buffer, 256, 0, (struct sockaddr *)&remote_addr, &addrlen);
 		
 		if (recvlen > 0) {
 			/* 
@@ -46,16 +46,17 @@ class auv_rx_socket{
 			we would like to have a "message box" in the interface where raw message data is put
 			*/
 			rx_buffer[recvlen] = 0;
+			//rx_buffer[255] = 0;
 			if (print == 1){
 				printf("received %d bytes\n", recvlen);
 				printf("received message: \"%s\"\n",rx_buffer);
 			}
 			shutdown(fd, 2);
 			usleep(SOCKET_SLEEP); //sleep for 100ms or so
-			return rx_buffer;
 			
 		}
 	
+			return rx_buffer;
 	
 	}
 
@@ -109,15 +110,6 @@ class auv_rx_socket{
     		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse)) < 0){
         		perror("setsockopt(SO_REUSEADDR) failed");
 		}
-		/*
-		struct ip_mreq mreq;
-   		mreq.imr_multiaddr.s_addr = inet_addr(group);
-    		mreq.imr_interface.s_addr = inet_addr(host);
-    		if (setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*) &mreq, sizeof(mreq)) < 0){
-        		perror("failed to seup multicastt");
-    		}
-		*/
-
 		/* bind the socket */
 
 		if (bind(fd, (struct sockaddr *)&my_addr, sizeof(my_addr)) < 0) {

@@ -7,6 +7,11 @@ struct axis_state {
     	short x, y;
 };
 
+
+
+
+
+
 class controller_generic_profile{
 	public:
 
@@ -249,3 +254,43 @@ class controller_t {
 
 
 };
+
+
+void fillControllerBuffer(controller_generic_profile in, char *buffer, int len){
+
+
+	
+	
+	int button[15];
+
+	button[0] = in.dp_up;
+	button[1] = in.dp_down;
+	button[2] = in.dp_left;
+	button[3] = in.dp_right;
+	button[4] = in.fc_1;
+	button[5] = in.fc_2;
+	button[6] = in.fc_3;
+	button[7] = in.fc_4;
+	button[8] = in.sc_left;
+	button[9] = in.sc_right;
+	button[10] = in.lt;
+	button[11] = in.rt;
+	button[12] = in.start;
+	button[13] = in.select;
+	button[14] = in.super;
+
+
+	for (int i = 0; i < 15; i++){
+		buffer[i] = button[i] + 48;
+
+	}
+
+
+	buffer[len - 1] = 0;
+
+
+
+
+}
+
+

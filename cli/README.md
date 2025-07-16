@@ -21,8 +21,6 @@ controller.h defines a class implmentation for generic controller support that c
 Because multiple things must be done at once (read controller/keyboard input, read from/transmit to sockets, display information), multi threading may be implemented, Currently, the code is being optimized so that each of these operations have enough time to occur while running at an acceptable speed. Polling sockets before reading from them to check rediness has been implemented.
 
 ## TODO
-amepad support<br>
-controller/command socket
 
 ## Compilation
 

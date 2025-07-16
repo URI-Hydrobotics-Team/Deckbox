@@ -12,16 +12,25 @@
 #include "connections.h"
 #include "controller.h"
 #include "controller_maps/sixaxis.h"
+#include "controller_maps/f710.h"
 #include "vt100.h"
 /* AUV HUB */
 
 /* 
-	message buffer
+	message buffer:
 	holds all recieved messages and prints them in a certian location
+	input buffer:
+	holds current controller input
 */
 
-char msgBuffer[MSG_BUFF_SIZE];
 std::string status_string;
+
+
+std::string input_string;
+char inputBuffer[256];
+char inputTemp[128];
+
+
 
 /* device definitions */
 auv_rx_socket input_hub, input_controller_backend; 
@@ -32,14 +41,30 @@ auv_tx_socket output_hub, output_log;
 controller_t test_controller; // new controller
 controller_generic_raw sixaxis_raw; // new virtual raw device
 
+controller_generic_raw f710_raw; // new virtual raw device
 controller_generic_profile deckbox_input;
 
 int autopilot = 0;
 
 
+void sendInputData(){
+
+	/* send input buffer to AUV */
+	
+	input_string = "";
+	input_string += "!DBX CTL ";
+	fillControllerBuffer(deckbox_input, inputTemp, 128);
+	input_string += inputTemp;
+	strncpy(inputBuffer, input_string.c_str(), 256);
+	output_hub.transmit(inputBuffer);
+
+}
+
+
 void initDevices(){
 	
 	input_hub.init(HUB_IP, HUB_PORT_RX, MULTICASTGROUP); // setup hub socket
+	output_hub.init(HUB_PORT_TX, MULTICASTGROUP);
 	//input_controller_backend.init(CONTROLLER_BACKEND_IP, CONTROLLER_BACKEND_PORT_RX, MULTICASTGROUP);
 	test_controller.setDevice("/dev/input/js0");
 	test_controller.init();
@@ -51,12 +76,14 @@ void initDevices(){
 
 void readFromDevices(){
 	
-	
+	//causing slowdowns, needs to be addressed
 	if (input_hub.probe() > 0){
 		input_hub.rec(1); // rec. data from hub socket
 	}
-	test_controller.poll(&sixaxis_raw);
-	convertToSixaxis(&deckbox_input, sixaxis_raw);
+	
+
+	test_controller.poll(&f710_raw);
+	convertToF710(&deckbox_input, f710_raw);
 	//sixaxis_raw.print();
 	/*
 	if (input_controller_backend.probe() > 0){
@@ -113,7 +140,8 @@ void printElements(){
 	std::cout << "\t\tRight: " << deckbox_input.slr_x << ' ' << deckbox_input.slr_y << '\n';
 
 	std::cout << "\n--- MESSAGE CENTER ---\n";
-	sixaxis_raw.print();
+	//sixaxis_raw.print();
+	f710_raw.print();
 }
 
 /*function declerations */
@@ -149,6 +177,7 @@ void listen(){
 			vtClear();
 			readFromDevices();
 			printElements();
+			sendInputData();
 
 		}
 	//do other things

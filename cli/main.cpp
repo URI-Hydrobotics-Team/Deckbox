@@ -32,6 +32,7 @@ char inputTemp[128];
 
 
 
+
 /* device definitions */
 auv_rx_socket input_hub, input_controller_backend; 
 auv_tx_socket output_hub, output_log;
@@ -47,7 +48,8 @@ controller_generic_profile deckbox_input;
 
 /* variables of interest */
 
-float pressure, temperature, depth, altitude;
+float pressure, temperature, depth, altitude; //pressure sensor
+float eox, eoy, eoz, avx, avy, avz, acx, acy, acz, mfx, mfy, mfz, lax, lay, laz, gvx, gvy, gvz; //IMU
 
 int autopilot = 0;
 
@@ -57,7 +59,7 @@ void sendInputData(){
 	/* send input buffer to AUV */
 	
 	input_string = "";
-	input_string += "!DBX CTL ";
+	input_string += "!DCI";
 	fillControllerBuffer(deckbox_input, inputTemp, 128);
 	input_string += inputTemp;
 	strncpy(inputBuffer, input_string.c_str(), 256);
@@ -121,7 +123,7 @@ void processInput(){
 						depth_str += inputBuffer[index];
 					}
 				
-					if (i == 3 && index < 32){
+					if (i == 3 && index < 64){
 						alt_str += inputBuffer[index];
 					}
 					index++;
@@ -131,20 +133,111 @@ void processInput(){
 
 			}
 			
-			std::cout << press_str << ' ' << temp_str << ' ' << depth_str << ' ' << alt_str << '\n';
+			//std::cout << press_str << ' ' << temp_str << ' ' << depth_str << ' ' << alt_str << '\n';
 			pressure = std::stof(press_str);
 			temperature = std::stof(temp_str);
 			depth = std::stof(depth_str);
-			//altitude = std::stof(alt_str);
+			altitude = std::stof(alt_str);
 			
 		}
+		//HUB STATUS IMU
+		if (inputBuffer[1] == 'H' &&
+		    inputBuffer[2] == 'S' &&
+	            inputBuffer[3] == 'I'){
+			
+			int index = 5;
+			std::string eox_str, eoy_str, eoz_str, avx_str, avy_str, avz_str, acx_str, acy_str, acz_str, mfx_str, mfy_str, mfz_str, lax_str, lay_str, laz_str, gvx_str, gvy_str, gvz_str;
 
+			for (int i = 0; i < 18; i ++){
+				while (inputBuffer[index] != ' '){
+					switch (i){
+						case 0:
+							eox_str += inputBuffer[index];
+							break;
+						case 1:
+							eoy_str += inputBuffer[index];
+							break;
+						case 2:
+							eoz_str += inputBuffer[index];
+							break;
+						case 3:	
+							avx_str += inputBuffer[index];
+							break;
+						case 4:	
+							avy_str += inputBuffer[index];
+							break;
+						case 5:
+							avz_str +=  inputBuffer[index];
+							break;
+						case 6:	
+							acx_str += inputBuffer[index];
+							break;
+						case 7:
+							acy_str += inputBuffer[index];
+							break;
+						case 8:
+							acz_str += inputBuffer[index];
+							break;
+						case 9:
+							mfx_str += inputBuffer[index];
+							break;
+						case 10:
+							mfy_str += inputBuffer[index];
+							break;
+						case 11:
+							mfz_str += inputBuffer[index];
+							break;
+						case 12:
+							lax_str += inputBuffer[index];
+							break;
+						case 13:	
+							lay_str += inputBuffer[index];
+							break;
+						case 14:
+							laz_str += inputBuffer[index];
+							break;
+				
+						case 15:
+							gvx_str += inputBuffer[index];
+							break;
+						case 16:
+							gvy_str += inputBuffer[index];
+							break;
+						case 17:
+							gvz_str += inputBuffer[index];
+							break;
+					}
+					index++;
+				}
+				index++;
+			}
+			//std::cout << eox_str << ' ' << eoy_str << ' ' << eoz_str << ' ' << avx_str << ' ' << avy_str << ' ' << avz_str <<'\n';
+			
+			eox = std::stof(eox_str);
+			eoy = std::stof(eoy_str);
+			eoz = std::stof(eoz_str);
 
+			avx = std::stof(avx_str);
+			avy = std::stof(avy_str);
+			avz = std::stof(avz_str);
 
+			acx = std::stof(acx_str);
+			acy = std::stof(acy_str);
+			acz = std::stof(acz_str);
 
+			mfx = std::stof(mfx_str);
+			mfy = std::stof(mfy_str);
+			mfz = std::stof(mfz_str);
+
+			lax = std::stof(lax_str);
+			lay = std::stof(lay_str);
+			laz = std::stof(laz_str);
+
+			gvx = std::stof(gvx_str);
+			gvy = std::stof(gvy_str);
+			gvz = std::stof(gvz_str);
+		}
 	}
-	
-
 	initStr(inputBuffer, 256);
 
 }
@@ -198,6 +291,12 @@ void printElements(){
 	std::cout << "Pressure: " << pressure << " \n";
 	std::cout << "Depth: " << depth << " \n";
 	std::cout << "Altitude: " << altitude << " \n";
+	std::cout << "Orientation: " << eox << ' '<< eoy << ' '<< eoz << '\n';
+	std::cout << "Velocity: " << avx << ' '<< avy << ' '<< avz << '\n';
+	std::cout << "Acceleration: " << acx << ' ' << acy << ' ' << acz << '\n';
+	std::cout << "Mag. Field Strength: " << mfx << ' ' << mfy << ' ' << mfz << '\n';
+	std::cout << "Linear Acceleration: " << lax << ' ' << lay << ' ' << laz << '\n';
+	std::cout << "Gravity: " << gvx << ' ' << gvy << ' ' << gvz << '\n';
 	std::cout << "\n--- MESSAGE CENTER ---\n";
 	//sixaxis_raw.print();
 	f710_raw.print();

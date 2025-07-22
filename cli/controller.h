@@ -259,10 +259,10 @@ class controller_t {
 void fillControllerBuffer(controller_generic_profile in, char *buffer, int len){
 
 
-	
-	
+	std::string str;
+	/* buttons*/
 	int button[15];
-
+	
 	button[0] = in.dp_up;
 	button[1] = in.dp_down;
 	button[2] = in.dp_left;
@@ -281,16 +281,43 @@ void fillControllerBuffer(controller_generic_profile in, char *buffer, int len){
 
 
 	for (int i = 0; i < 15; i++){
-		buffer[i] = button[i] + 48;
+		str += button[i] + 48; //turns base int into ASCII char
 
 	}
 
 
-	buffer[len - 1] = 0;
+	/* sticks */
+	/*
+     	double sll_x, sll_y; // stick_location_left_*
+        double slr_x, slr_y; // stick_location_right_*  
+        double lt_a, rt_a;
+ 
+
+	
 
 
+	*/
+	str += ' '; // add space 
 
+	std::string sll_x_str, sll_y_str, slr_x_str, slr_y_str, lt_a_str, rt_a_str;
+	sll_x_str = std::to_string(in.sll_x);	
+	sll_y_str = std::to_string(in.sll_y);
+	slr_x_str = std::to_string(in.slr_x);
+	slr_y_str = std::to_string(in.slr_y);
+	lt_a_str = std::to_string(in.lt_a);
+	rt_a_str = std::to_string(in.rt_a);
 
+	str += sll_x_str; str += ' ';
+	str += sll_y_str; str  += ' ';
+	str += slr_x_str; str += ' ';	
+	str += slr_y_str; str += ' ';	
+	str += lt_a_str; str += ' ' ;
+	str += rt_a_str; str += ' ' ;
+
+	strncpy(buffer, str.c_str(), len);
+	//std::cout << str << '\n';
+
+	buffer[len - 1] = 0; //terminate the string
 }
 
 

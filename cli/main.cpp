@@ -62,13 +62,19 @@ void sendInputData(){
 
 	/* send input buffer to AUV */
 	
-	input_string = "";
-	input_string += "!DCI";
+	input_string = "!DCI";
 	fillControllerBuffer(deckbox_input, inputTemp, 128);
 	input_string += inputTemp;
 	strncpy(inputBuffer, input_string.c_str(), 256);
 	output_hub.transmit(inputBuffer);
 	usleep(1000);
+	/* send sys_mode */
+
+	input_string = "!DCM ";
+	input_string += std::to_string(sys_mode);
+	output_hub.transmit(input_string.c_str());
+	usleep(1000);
+
 }
 
 
@@ -252,7 +258,7 @@ void printElements(){
 	std::cout << "DeckBox-CLI version: " << version_string << "\n";
 
 	std::cout << "--- SYSTEM STAUS ---\n";
-	std::cout << "Use Keys 1 - 6 to select mode\n";
+	std::cout << "\tUse Keys 1 - 6 to select mode\n";
 	std::cout << "\tMode: ";
 	switch (sys_mode){
 		case 0:

@@ -7,8 +7,11 @@
 #include <sys/types.h>
 #include <fcntl.h> //include fentanyl
 #include <bits/stdc++.h>
+#include <termios.h>
+
 
 #include "config.h"
+#include "keyboard.h"
 #include "connections.h"
 #include "controller.h"
 #include "controller_maps/sixaxis.h"
@@ -45,13 +48,14 @@ controller_generic_raw sixaxis_raw; // new virtual raw device
 controller_generic_raw f710_raw; // new virtual raw device
 controller_generic_profile deckbox_input;
 
+keyboard_t kb;
 
 /* variables of interest */
 
 float pressure, temperature, depth, altitude; //pressure sensor
 float eox, eoy, eoz, avx, avy, avz, acx, acy, acz, mfx, mfy, mfz, lax, lay, laz, gvx, gvy, gvz; //IMU
 
-int autopilot = 0;
+int sys_mode = 0;
 
 
 void sendInputData(){
@@ -72,10 +76,9 @@ void initDevices(){
 	
 	input_hub.init(HUB_PORT_RX); // setup hub socket
 	output_hub.init(HUB_IP, HUB_PORT_TX);
-	//input_controller_backend.init(CONTROLLER_BACKEND_IP, CONTROLLER_BACKEND_PORT_RX, MULTICASTGROUP);
 	test_controller.setDevice("/dev/input/js0");
 	test_controller.init();
-
+	kb.init();
 
 
 	std::cout << "Devices Initialized\n";
@@ -247,16 +250,35 @@ void printElements(){
 
 	//vtGoto(1,1);
 	std::cout << "DeckBox-CLI version: " << version_string << "\n";
-	/* controller input*/
 
-	std::cout << "--- CONTROL STAUS ---\n";
-	if (autopilot){
-		std::cout << "\tControl Scheme: AUTOMATIC\n";
-	}else{
+	std::cout << "--- SYSTEM STAUS ---\n";
+	std::cout << "Use Keys 1 - 6 to select mode\n";
+	std::cout << "\tMode: ";
+	switch (sys_mode){
+		case 0:
+			std::cout << "Testing\n";
+			break;
+		case 1:
+			std::cout << "Full Manual Control\n";
+			break;
+		case 2:
+			std::cout << "Teleoperative (Debug)\n";
+			break;
+		case 3:
+			std::cout << "Teleoperative\n";
+			break;
 
-		std::cout << "\tControl Scheme: MANUAL\n";
+		case 4:
+			std::cout << "Teleoperative (with recording and playback)\n";
+			break;
+		case 5: 
+			std::cout << "Full Autonomy (Tasks)\n";
+			break;
+		
 	}
+	std::cout << "--- INPUT STAUS ---\n";
 	
+	/* controller input*/
 	std::cout << "\tButtons:\n";
 	std::cout << "\t\tButton 1: " << deckbox_input.fc_1 << '\n';
 	std::cout << "\t\tButton 2: " << deckbox_input.fc_2 << '\n';
@@ -286,7 +308,7 @@ void printElements(){
 	std::cout << "\t\tLeft: " << deckbox_input.sll_x << ' ' << deckbox_input.sll_y << '\n';
 	std::cout << "\t\tRight: " << deckbox_input.slr_x << ' ' << deckbox_input.slr_y << '\n';
 
-	std::cout << "\n--- ONBOARD STATUS ---\n";
+	std::cout << "\n--- ONBOARD TELEMETRY ---\n";
 	std::cout << "Temperature: " << temperature << " degrees celsius\n";
 	std::cout << "Pressure: " << pressure << " \n";
 	std::cout << "Depth: " << depth << " \n";
@@ -302,8 +324,30 @@ void printElements(){
 	f710_raw.print();
 }
 
-/*function declerations */
+void getKbInput(){
+	int ch = kb.getCode();
 
+	switch (ch){
+		case 2: // '1'
+			sys_mode = 0;
+			break;
+		case 3:
+			sys_mode = 1;
+			break;
+		case 4:
+			sys_mode = 2;
+			break;
+		case 5:
+			sys_mode = 3;
+			break;
+		case 6:
+			sys_mode = 4;
+			break;
+		case 7:
+			sys_mode = 5;
+			break;
+	}
+}
 
 void printHelp(){
 	std::cout << "DeckBox-CLI version: " << version_string << "\n";
@@ -321,8 +365,7 @@ void printHelp(){
 
 
 
-void listen(){ 
-	
+int listen(){ 
 	vtClear();	
 	/* 
 		Main function for defining which sockets to listen to
@@ -337,20 +380,13 @@ void listen(){
 			processInput();
 			printElements();
 			sendInputData();
-
+			getKbInput();
 		}
 	//do other things
-
-    	//vtClear(); //clear screen
-	
-
-
+	return 1;
 }
 
-
-
 int main(int argc, char *argv[]){
-	
 	std::string mode, arg1, arg2;
 	if (argv[1] != NULL){
 		mode = argv[1];

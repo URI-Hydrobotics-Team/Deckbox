@@ -54,9 +54,9 @@ keyboard_t kb;
 
 float pressure, temperature, depth, altitude; //pressure sensor
 float eox, eoy, eoz, avx, avy, avz, acx, acy, acz, mfx, mfy, mfz, lax, lay, laz, gvx, gvy, gvz; //IMU
-
+float bph, bsh, sh, y, ps, ss; //thrusters
 int sys_mode = 0;
-
+char thruster_toggle;
 
 void sendInputData(){
 
@@ -149,6 +149,61 @@ void processInput(){
 			altitude = std::stof(alt_str);
 			
 		}
+		//HUB STATUS THRUSTERS
+		if (inputBuffer[1] == 'H' &&
+		    inputBuffer[2] == 'S' &&
+	            inputBuffer[3] == 'T'){
+			int index = 5;
+			std::string bph_str, bsh_str, sh_str, y_str, ps_str, ss_str;
+
+			for (int i = 0; i < 5; i ++){
+				while (inputBuffer[index] != ' '){
+					if (i == 0){
+						bph_str += inputBuffer[index];
+					}
+					if (i == 1){
+						bsh_str += inputBuffer[index];
+					}
+					
+					if (i == 2){
+						sh_str += inputBuffer[index];
+					}
+					if (i == 3){
+						y_str += inputBuffer[index];
+					}
+				
+					if (i == 4){
+						ps_str += inputBuffer[index];
+					}
+
+					if (i == 5 && index < 128){
+						ss += inputBuffer[index];
+					}
+					index++;
+					
+				}
+				index++;
+
+			}
+			
+			bph = std::stof(bph_str);
+			bsh = std::stof(bsh_str);
+			sh = std::stof(sh_str);
+			y = std::stof(y_str);	
+			ps = std::stof(ps_str);
+			ss = std::stof(ss_str);
+			
+		}
+
+		//HUB STATUS THRUSTER_TOGGLE
+		if (inputBuffer[1] == 'H' &&
+		    inputBuffer[2] == 'S' &&
+	            inputBuffer[3] == 'O'){
+
+			thruster_toggle = inputBuffer[5];
+		}
+
+
 		//HUB STATUS IMU
 		if (inputBuffer[1] == 'H' &&
 		    inputBuffer[2] == 'S' &&
@@ -325,6 +380,16 @@ void printElements(){
 	std::cout << "Mag. Field Strength: " << mfx << ' ' << mfy << ' ' << mfz << '\n';
 	std::cout << "Linear Acceleration: " << lax << ' ' << lay << ' ' << laz << '\n';
 	std::cout << "Gravity: " << gvx << ' ' << gvy << ' ' << gvz << '\n';
+	std::cout << "\n--- THRUSTERS ---\n";
+	if (sys_mode == 1){
+		std::cout << "Thruster Toggled: " << thruster_toggle << '\n';
+	}
+	std::cout << "Bow-Port-Heave (0): " << bph << '\n';
+	std::cout << "Bow-Starboard-Heave (1): " << bsh << '\n';
+	std::cout << "Stern-Heave (2): " << sh << '\n';
+	std::cout << "Yaw (3): " << y << '\n';
+	std::cout << "Port-Surge (4): " << ps << '\n';
+	std::cout << "Starboard-Surge (5): " << ss << '\n';
 	std::cout << "\n--- MESSAGE CENTER ---\n";
 	//sixaxis_raw.print();
 	f710_raw.print();
